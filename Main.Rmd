@@ -7,6 +7,9 @@ output: github_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+knitr::opts_knit$set(root.dir = here::here())
+knitr::opts_knit$get("root.dir")
 ```
 
 ## R Markdown
