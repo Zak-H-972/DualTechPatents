@@ -1,2 +1,0 @@
-Dual Tech Patent Classification
-===============

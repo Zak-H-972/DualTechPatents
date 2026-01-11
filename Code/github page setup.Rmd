@@ -9,31 +9,66 @@ always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE)
 
+library(dplyr)
 library(ggplot2)
 library(plotly)
+
+set.seed(972)
 ```
+
+Dual-use scoring of patents based on semantic similarity between patent abstracts and items on the Wassenaar Arrangement (WA) control lists.
 
 ## Proof of Concept
 
-Test 1 
+### Data:
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+1) 50,000 US patents granted between 2015–2020 (sourced from lens.org).
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+2) Wassenaar Arrangement (WA) control list items for dual-use technologies (https://www.wassenaar.org/control-lists/). These lists define controlled categories used by Israeli arm export-control.
 
-```{r cars}
-summary(cars)
-```
+### Method:
 
-## Including Plots
+1) Text representation of both patent abstracts and WA control-list text (item list by category). 
 
-You can also embed plots, for example:
+  - Current baseline uses TF-IDF; a better approach is embeddings to better capture semantic similarity.
 
-```{r pressure, results = "asis", echo=FALSE}
-# get data
-source(here("code", "patent_similartity_calc.R"))
+2) Compute a patent-level 'duality score' using cosine similarity:
+
+  - compute cosine similarity between each patent abstract and each WA text.
+
+  - assign each patent the maximum similarity across WA texts.
+
+Next step: select a classification threshold to flag likely dual-use patents.
+
+### Example:
+
+Sample of 500 patents from the data, reporting for each patent: the duality_score, the best-matching WA item, and the matched text snippet (move mouse across bars).
+
+```{r plot, results = "asis", echo=FALSE}
+# read data
+patent_data_sample <- 
+  readRDS(here("data", "patent_daul_tech_sim_data.RDS")) |> 
+  slice_sample(n = 500) # keep sample of 500 patents
+
+# add aux data and prepare for plot
+patent_data_sample <- 
+  patent_data_sample |> 
+  mutate(
+    cos_decile = ntile(cosine_sim, 10),
+    cos_decile = factor(cos_decile, levels = 1:10),
+    patent_title = forcats::fct_reorder(patent_title, cosine_sim),
+    tooltip = paste0(
+      "Patent: ", patent_title,
+      "<br>WA_doc: ", WA_catagory,
+      "<br>Owner: ", Owners,
+      "<br>Abstract: ", str_wrap(Abstract, width = 50) |> str_replace_all("\n", "<br>"),
+      "<br>Cosine: ", round(cosine_sim, 3),
+      "<br>Decile: ", cos_decile
+    )
+  )
+
 
 # plot
 pal_traffic10 <- colorRampPalette(c("red", "yellow", "green"))(10)
@@ -50,9 +85,8 @@ p <-
   )
 
 ggplotly(p, tooltip = "text")
+
+rm(patent_data_sample, p, pal_traffic10)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-
-
-https://www.nber.org/system/files/working_papers/w31925/w31925.pdf
+<!-- https://www.nber.org/system/files/working_papers/w31925/w31925.pdf -->

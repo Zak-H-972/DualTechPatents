@@ -1,5 +1,4 @@
 
-
 # setup ------------------------------------------------------------------------
 library(stringr)
 library(dplyr)
@@ -8,8 +7,6 @@ library(tidytext)
 library(readtext)
 library(text2vec)
 # library(text)
-
-set.seed(972)
 
 # read data  -----------------------------------------------------------------
 wa_docs <-  
@@ -114,28 +111,6 @@ sim_data <-
 
 # save
 saveRDS(sim_data, here("data", "patent_daul_tech_sim_data.RDS"))
-
-# keep sample of 500 patents for plot
-patent_data_sample <- 
-  sim_data |> 
-  slice_sample(n = 500)
-
-# add aux data and prepare for plot
-patent_data_sample <- 
-  patent_data_sample |> 
-  mutate(
-    cos_decile = ntile(cosine_sim, 10),
-    cos_decile = factor(cos_decile, levels = 1:10),
-    patent_title = forcats::fct_reorder(patent_title, cosine_sim),
-    tooltip = paste0(
-      "Patent: ", patent_title,
-      "<br>WA_doc: ", WA_catagory,
-      "<br>Owner: ", Owners,
-      "<br>Abstract: ", str_wrap(Abstract, width = 50) |> str_replace_all("\n", "<br>"),
-      "<br>Cosine: ", round(cosine_sim, 3),
-      "<br>Decile: ", cos_decile
-    )
-  )
 
 rm(wa_docs, patent_data, aux_patent_data, col_ids, row_ids, dtm_cols, dtm_rows, dtm, sim_rect, sim_data)
 gc()
