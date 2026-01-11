@@ -1,4 +1,4 @@
-# run time: (including data creation)
+# run time: 30 sec (including data creation)
 
 # setup ------------------------------------------------------------------------
 
