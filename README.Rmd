@@ -3,10 +3,16 @@ title: "Dual Tech Patent Classification"
 author: "ZH"
 date: "2026-01"
 output: github_document
+always_allow_html: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
+library(here)
+
+library(ggplot2)
+library(plotly)
 ```
 
 ## Proof of Concept
@@ -24,7 +30,27 @@ summary(cars)
 You can also embed plots, for example:
 
 ```{r pressure, echo=FALSE}
-plot(pressure)
+# get data
+source(here("Code", "patent_similartity_calc.R"))
+
+# plot
+pal_traffic10 <- colorRampPalette(c("red", "yellow", "green"))(10)
+
+p <- 
+  ggplot(patent_data_sample, aes(x = patent_title, y = cosine_sim,
+                       fill = cos_decile, text = tooltip)) +
+  geom_col(position = position_dodge2()) +
+  scale_fill_manual(values = pal_traffic10, name = "Cosine decile") +
+  theme(
+    axis.title.x = element_blank(),
+    axis.text.x  = element_blank(),
+    axis.ticks.x = element_blank()
+  )
+
+ggplotly(p, tooltip = "text")
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+https://www.nber.org/system/files/working_papers/w31925/w31925.pdf
