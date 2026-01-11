@@ -29,7 +29,7 @@ summary(cars)
 
 You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
+```{r pressure, results = "asis", echo=FALSE}
 # get data
 source(here("Code", "patent_similartity_calc.R"))
 
