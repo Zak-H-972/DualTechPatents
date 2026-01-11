@@ -13,11 +13,11 @@ set.seed(972)
 
 # read data  -----------------------------------------------------------------
 wa_docs <-  
-  readtext(here("Data", "WA_list", "*.docx")) 
+  readtext(here("data", "WA_list", "*.docx")) 
 
 # patent data 
 patent_data <- 
-  read.csv(here("Data", "lens-patent-data.csv"))
+  read.csv(here("data", "lens-patent-data.csv"))
 
 aux_patent_data <- # save extra data on the patents for the plot
   patent_data |> 
@@ -113,7 +113,7 @@ sim_data <-
   )
 
 # save
-saveRDS(sim_data, here("Data", "patent_daul_tech_sim_data.RDS"))
+saveRDS(sim_data, here("data", "patent_daul_tech_sim_data.RDS"))
 
 # keep sample of 500 patents for plot
 patent_data_sample <- 
